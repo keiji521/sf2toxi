@@ -32,8 +32,8 @@ extxi="Extended Instrument: " #x00
 name=""   # Name,0x1A :x15
 trkname="FastTracker v2.00"# Tracker name,f.e. "FastTracker v2.00" in FT2's case :x2c
 major_version=2             # :x40
-minor_version[1] :x41
-samples_note_map[1]*96 :x42
+minor_version=1 :x41
+samples_note_map='0'*96 :x42
 volume_envelope[2]*24 :xA2
 pannning_envelope[2]*24:xD2
 volume_points_number[1]:x102
