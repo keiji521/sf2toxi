@@ -1,6 +1,11 @@
 #!/usr/bin/python
 #coding:utf-8
 
+'''
+This program is not completion.
+The program purpose is soundfont2 export to xi(Fasttracker2)
+'''
+
 import sys
 import re
 from struct import * 
