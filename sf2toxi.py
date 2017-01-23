@@ -5,10 +5,11 @@
 This program is not completion.
 The program purpose is soundfont2 export to xi(Fasttracker2)
 '''
-
+import os
 import sys
 import re
 from struct import * 
+
 #------------sf2 variables------------------------------------------------------
 shdr_size = 0
 shdr_list = []
@@ -32,40 +33,40 @@ extxi="Extended Instrument: " #x00
 name=""   # Name,0x1A :x15
 trkname="FastTracker v2.00"# Tracker name,f.e. "FastTracker v2.00" in FT2's case :x2c
 major_version=2             # :x40
-minor_version=1 :x41
-samples_note_map='0'*96 :x42
-volume_envelope[2]*24 :xA2
-pannning_envelope[2]*24:xD2
-volume_points_number[1]:x102
-pannning_points_number   :x103
-volume_sustain_point     :x104
-volume_loop_start_point  :x105
-volume_loop_end_point    :x106
-panning_sustain_point    :x107
-panning_loop_start_point :x108
-panning_loop_end_point:x109
-volume_type           :x10A
-panning_type          :x10B
-vibrato_type          :x10C
-vibrato_sweep         :x10D
-vibrato_depth         :x10E
-vibrato_rate          :x10F
-volume_fadeout :x110
-extended_info  :x112
-samples_number:x128
-sample_length:x12A
-sample_loop_start:x12E
-sample_loop_length:x132
-sample_volume:x136
-sample_finetune:x137
-sample_type:x138
-sample_panning:x139
-sample_transpose:x13A
-sample_sample_name_length:x13B
-sample_name:x13C
+minor_version=1 #:x41
+samples_note_map=[0 for i in range(96)]#'0'*96 :x42
+volume_envelope=[0 for i in range(24)]#[2]*24 :xA2
+pannning_envelope=[0 for i in range(24)]#[2]*24:xD2
+ppvolume_points_number=0#[1]:x102
+pannning_points_number=0#   :x103
+volume_sustain_point=0#   :x104
+volume_loop_start_point=0# :x105
+volume_loop_end_point=0#    :x106
+panning_sustain_point=0#    :x107
+panning_loop_start_point=0# :x108
+panning_loop_end_point=0#:x109
+volume_type=0#           :x10A
+panning_type=0#          :x10B
+vibrato_type=0#          :x10C
+vibrato_sweep =0#        :x10D
+vibrato_depth=0#         :x10E
+vibrato_rate=0#          :x10F
+volume_fadeout=0# :x110
+extended_info=0#  :x112
+samples_number=0#:x128
+sample_length=0#:x12A
+sample_loop_start=0#:x12E
+sample_loop_length=0#:x132
+sample_volume=100#:x136
+sample_finetune=0#:x137
+sample_type=0#:x138
+sample_panning=0#:x139
+sample_transpose=0#:x13A
+sample_sample_name_length=0#:x13B
+sample_name='sample001'#:x13C
 
 '''xi file structure
-CHAR extxi[21];   //"Extended Instrument: " :x00
+CHAR extxi[21];   //"Extended Instrument :x00
 CHAR name[23];    //Name,0x1A :x15
 CHAR trkname[20]; //Tracker name,f.e. "FastTracker v2.00" in FT2's case :x2c
 BYTE major_version[1] :x40
@@ -107,12 +108,16 @@ DATA sample_datqa:x152
 
 #search pattern from sf2
 argvs = sys.argv
-print("searching "+argvs[1])
+dir_name = argvs[1].split('.')[0]
+if len(argvs)<1:
+	print('too less arguments')
 
+print("searching "+argvs[1])
 #open sf2. argv[1] is name of sf2
 sf2 = open(argvs[1],'rb')
 data=sf2.read()
 sf2.close()
+
 
 #search shdr chunk
 matchOB = re.search(r'shdr',data)
@@ -133,6 +138,7 @@ for i in range(repeat):
     sf_sample_link = unpack('<H',data[shdr_start+43:shdr_start+45])
     shdr_start += 46
     shdr_list.append([sample_name,dwstart[0],dwend[0],dwstart_loop[0],dwend_loop[0],dwsample_rate[0],byte_orig_pitch[0],char_chPitch_correction[0],w_sample_link[0],sf_sample_link[0]])
+    '''
     print(sample_name)
     print(dwstart)
     print(dwend)
@@ -143,20 +149,30 @@ for i in range(repeat):
     print(char_chPitch_correction)
     print(w_sample_link)
     print(sf_sample_link)
-for i in shdr_list:
-    print(i)
+    '''
 
-
+'''
+    TODO 
+    spliting sample data by dwatart and dwend.
+    
+'''
 matchOB = re.search(r'smpl',data)
 if matchOB:
-    print matchOB
-    print matchOB.start()
-    print matchOB.end()
-    print matchOB.span()
+    print(matchOB)
+    print(matchOB.start())
+    print(matchOB.end())
+    print(matchOB.span())
 
 smpldata_size = unpack('<L',data[matchOB.end():matchOB.end()+4])[0]
 smpl_start = matchOB.end()+4
 smpldata = data[smpl_start:smpl_start+smpldata_size]
-
 for i in range(repeat):
-    pass
+    shdr_list[i].append(smpldata[shdr_list[i][1]:shdr_list[i][2]])
+'''
+for i in shdr_list:
+    print(i[0])
+'''
+try:
+	os.mkdir(dir_name)
+except(OSError):
+	print('error has occured')
